@@ -162,7 +162,7 @@ class TriviaCommand extends commando.Command {
             } else if(stop) {
                 message.channel.send("Game was stopped");
             }else {
-                message.channel.send('Looks like nobody got it correct! You guys suck. The correct answer was: ' + (curQuest.correct + 1));
+                message.channel.send('Looks like nobody got it correct! You guys suck. The correct answer was: ' + (curQuest.correctAns));
             }
             i++;
 
