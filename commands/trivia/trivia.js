@@ -177,6 +177,8 @@ class TriviaCommand extends commando.Command {
                     points: 0
                 };
                 
+                let tie = [];
+                
                 // Compares scores, if any questions were even answered correctly
                 if(points.winners) {
                 
@@ -187,11 +189,17 @@ class TriviaCommand extends commando.Command {
                                     user: key,
                                     points: points[key]
                                 }
+                            } else if (highest.points == points[key]) {
+                                tie = [...tie, key];
                             }
                         }
                     });
 
-                    message.channel.send(highest.user + ' won with ' + highest.points/100 + ' correct answers!');
+                    if(tie) {
+                        message.channel.send(tie + ' tied with ' + highest.points/100 + ' correct answers!');
+                    } else {
+                        message.channel.send(highest.user + ' won with ' + highest.points/100 + ' correct answers!');
+                    }
 
                     points = {};
 
@@ -213,7 +221,8 @@ class TriviaCommand extends commando.Command {
     decode (string) {
         string = string.replace(/&quot;/g, '\"')
             .replace(/&#039;/g, '\'')
-            .replace(/&eacute;/g, 'e');
+            .replace(/&eacute;/g, 'e')
+            .replace(/&rsquo;/g, '\'');
         return string;
     }
 
