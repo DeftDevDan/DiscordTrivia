@@ -12,7 +12,7 @@ mongoose.connect(
 
 // App variables
 let category = '';
-const amount = 10;
+let amount = 10;
 let apiLink = 'https://opentdb.com/api.php?';
 
 let points = {
@@ -192,7 +192,9 @@ class TriviaCommand extends commando.Command {
                 }
 
                 // RESET CATEGORY
-                category = '';
+                let category = '';
+                let amount = 10;
+                let apiLink = 'https://opentdb.com/api.php?';
             }
         });
     }
