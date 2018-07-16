@@ -22,7 +22,7 @@ class NewUserCommand extends commando.Command {
         Points.findOne({ userId: message.author.id })
             .then((res) => {
                 if(res) {
-                    message.reply(" you have " + res.points + " points!");
+                    message.reply(" you already have a profile!");
                 } else {
                     let newUser = new Points ({
                         _id: mongoose.Types.ObjectId(),
