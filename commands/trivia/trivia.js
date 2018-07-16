@@ -81,27 +81,29 @@ class TriviaCommand extends commando.Command {
                         }
                     });
                 } else {
-                    message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
+                    message.channel.send(user + " please create new profile by typing '.new' to accumulate points.");
                 }
             })
             .catch(err => {
-                if(err) {
-                    Points.findOne({ user: user })
-                    .then((res) => {
-                        if(res) {
-                            res.points += pts;
-                            message.channel.send(user + ", you have " + res.points + " points now!");
-                            res.save(err => {
-                                if(err) {
-                                    console.log(err)
-                                }
-                            });
-                        } else {
-                            message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
-                        }
-                    })
-                }
+                console.log(err);
             });
+    }
+
+    addByUser(user, message, pts) {
+        Points.findOne({ user: user })
+            .then((resp) => {
+                if(resp) {
+                    resp.points += pts;
+                    message.channel.send(user + ", you have " + resp.points + " points now!");
+                    resp.save(error => {
+                        if(error) {
+                            console.log(error)
+                        }
+                    });
+                } else {
+                    message.channel.send(user + " please create new profile by typing '.new' to accumulate points.");
+                }
+            })
     }
 
     // Callback loop is used to separate each question.
@@ -189,6 +191,7 @@ class TriviaCommand extends commando.Command {
                 message.channel.send('---------------------------');
                 this.cbLoop(i, arr, message);
             } else {
+                console.log(i, arr.length);
                 let highest = {
                     user: '',
                     points: 0
@@ -213,8 +216,8 @@ class TriviaCommand extends commando.Command {
                             } else if (highest.points == points[key]) {
                                 tie = [...tie, key];
                             }
+                            roundWinners = [...roundWinners, key];
                         }
-                        roundWinners = [...roundWinners, key];
                     });
 
                     if(tie.length > 1) {
@@ -224,14 +227,16 @@ class TriviaCommand extends commando.Command {
                     }
 
                     if(roundWinners.length > 1) {
+                        console.log(roundWinners);
                         if(tie.length > 1) {
                             let eachPlayer = Math.round(arr.length * 25 /tie.length);
-                            for (var i = 0; i < tie.length; i++) {
-                                this.addPoints(tie[i], tie[i], tie + ' each earned ' + eachPlayer + ' points!', eachPlayer);
+                            message.channel.send(tie + ' each earned ' + eachPlayer + ' points!');
+                            for (var j = 0; j < tie.length; j++) {
+                                this.addByUser(tie[j], message, eachPlayer);
                             }
                         } else {
                             message.channel.send(highest.user + ' won ' + arr.length * 25 + ' points!');
-                            this.addPoints(highest.user, winner.user, message, arr.length * 25);
+                            this.addByUser(highest.user, message, arr.length * 25);
                         }
                     }
 
