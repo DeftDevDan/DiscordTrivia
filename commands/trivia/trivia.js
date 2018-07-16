@@ -19,6 +19,16 @@ let stop = false;
 let points = {
 
 }
+let userBet;
+let pool=[];
+let restricted=[];
+
+let winner = {
+    user: '',
+    answer: '',
+    id: '',
+    win: false
+}
 
 // Trivia Class
 
@@ -64,6 +74,21 @@ class TriviaCommand extends commando.Command {
                             return true
                         }
                     }
+                },
+                {
+                    key:'bet',
+                    prompt: 'How many points would you like to bet?',
+                    type: 'integer',
+                    default: 0,
+                    validate: num => {
+                        if(isNaN(num)) {
+                            return 'Please select a number'
+                        } else if (num < 0) {
+                            return 'Please choose a positive number'
+                        }else {
+                            return true
+                        }
+                    }
                 }
             ]
         });
@@ -89,6 +114,38 @@ class TriviaCommand extends commando.Command {
             });
     }
 
+    // Checks to see if user exists and adds to pool. If no user, will add to restricted array
+    addToPool(user, message, curQuest, guessed, collector, m) {
+        Points.findOne({ user: user })
+            .then((res) => {
+                if(res) {
+                    if(res.points >= userBet) {
+                        res.points -= userBet;
+                        pool.push(user);
+                        message.channel.send(user + ", you have put " + userBet + " into the pool.");
+                        res.save(err => {
+                            if(err) {
+                                console.log(err);
+                            }
+                            console.log("added to pool");
+                        });
+                        this.checkGuess(m, message, curQuest, guessed, collector);
+                    } else {
+                        message.channel.send(user + ", you do not have enough points to play.");
+                        restricted.push(user);
+                        console.log(restricted, " not enough funds");
+                        return false;
+                    }
+                    
+                } else {
+                    message.channel.send(user + " please create new profile by typing '.new' to play.");
+                    restricted.push(user);
+                    console.log(restricted, " no user");
+                    return false;
+                }
+            })
+    }
+
     addByUser(user, message, pts) {
         Points.findOne({ user: user })
             .then((resp) => {
@@ -106,65 +163,77 @@ class TriviaCommand extends commando.Command {
             })
     }
 
+    checkGuess (m, message, curQuest, guessed, collector) {
+        if(guessed.indexOf(m.author.username) === -1 && restricted.indexOf(m.author.username) === -1) {
+            if(m == curQuest.correct + 1) {
+                if(!winner.win) {
+                    winner = {
+                        user: m.author.username,
+                        answer: curQuest.correct + 1,
+                        id: m.author.id,
+                        win: true
+                    }
+
+                    if(!points[winner.user]) {
+                        let merged = {
+                            ...points,
+                            [winner.user]: 100,
+                            winners: true
+                        }
+                        points = merged;
+                    } else {
+                        points[winner.user] += 100;
+                    }
+
+                    this.addPoints(winner.id, winner.user, message, 100);
+                    
+                    message.channel.send(winner.user + " is correct! The answer was: " + curQuest.correctAns + "\n" + winner.user + " has " + points[winner.user] + ' points this round!');
+
+                    setInterval(function() {
+                        collector.stop();
+                    }, 3 * 1000);
+                }
+            }else {
+                guessed.push(m.author.username);
+            } 
+        } else if (restricted.indexOf(m.author.username) > -1) {
+            console.log(restricted);
+        }
+    }
+
+
     // Callback loop is used to separate each question.
     cbLoop(i, arr, message) {
-
-        const filter = m => m.author.username !== 'TriviaBot';
+        const filter = m => m.author.bot == false;
         const curQuest = arr[i];
-        let winner = {
-            user: '',
-            answer: '',
-            id: '',
-            win: false
-        }
+
         let guessed = [];
 
         // Initiate a collection. Question is asked, then the bot waits for the answer.
         const collector = message.channel.createMessageCollector(filter, { time: 15 * 1000});
 
-        message.channel.send(`QUESTION ${i+1}\n${arr[i].question} \n ${arr[i].options}`);
+        if(!stop) message.channel.send(`QUESTION ${i+1}\n${arr[i].question} \n ${arr[i].options}`);
 
         // Triggered when message is seen on channel
         collector.on('collect', m => {
+
+            
             if(m == "stop") {
-                i = arr.length + 100;
                 stop = true;
                 collector.stop();
             }
-            if(guessed.indexOf(m.author.username) === -1) {
-                if(m == curQuest.correct + 1) {
-                    if(!winner.win) {
-                        winner = {
-                            user: m.author.username,
-                            answer: curQuest.correct + 1,
-                            id: m.author.id,
-                            win: true
-                        }
-
-                        if(!points[winner.user]) {
-                            let merged = {
-                                ...points,
-                                [winner.user]: 100,
-                                winners: true
-                            }
-                            points = merged;
-                        } else {
-                            points[winner.user] += 100;
-                        }
-
-                        this.addPoints(winner.id, winner.user, message, 100);
-                        
-                        message.channel.send(winner.user + " is correct! The answer was: " + curQuest.correctAns + "\n" + winner.user + " has " + points[winner.user] + ' points this round!');
-
-                        setInterval(function() {
-                            collector.stop();
-                        }, 3 * 1000);
-                    }
-                }else {
-                    guessed.push(m.author.username);
-                } 
+            if(restricted.indexOf(m.author.username) === -1) {
+                if(userBet > 0) {
+                    if(pool.indexOf(m.author.username) === -1){
+                        this.addToPool(m.author.username, message, curQuest, guessed, collector, m);       
+                        this.checkGuess(m, message, curQuest, guessed, collector);
+                    } else {
+                        this.checkGuess(m, message, curQuest, guessed, collector);
+                    };
+                } else {
+                    this.checkGuess(m, message, curQuest, guessed, collector);
+                }
             }
-
         });
         
         // End of collection.
@@ -184,13 +253,9 @@ class TriviaCommand extends commando.Command {
                 message.channel.send('Looks like nobody got it correct! You guys suck. The correct answer was: ' + (curQuest.correctAns));
             }
             i++;
-
-
-            // Checks if game should continue, or if it should end
-            if(i < arr.length) {
-                message.channel.send('---------------------------');
-                this.cbLoop(i, arr, message);
-            } else {
+         
+            // End game function
+            if(i >= arr.length || stop) {
                 let highest = {
                     user: '',
                     points: 0
@@ -218,14 +283,16 @@ class TriviaCommand extends commando.Command {
                             roundWinners = [...roundWinners, key];
                         }
                     });
+                    
 
+                    // Check for ties and reward points
                     if(tie.length > 1) {
                         message.channel.send(tie + ' tied with ' + highest.points/100 + ' correct answers!');
                     } else {
                         message.channel.send(highest.user + ' won with ' + highest.points/100 + ' correct answers!');
                     }
 
-                    if(roundWinners.length > 1) {
+                    if(roundWinners.length > 1 && userBet == 0) {
                         if(tie.length > 1) {
                             let eachPlayer = Math.round(arr.length * 25 /tie.length);
                             message.channel.send(tie + ' each earned ' + eachPlayer + ' points!');
@@ -235,6 +302,17 @@ class TriviaCommand extends commando.Command {
                         } else {
                             message.channel.send(highest.user + ' won ' + arr.length * 25 + ' points!');
                             this.addByUser(highest.user, message, arr.length * 25);
+                        }
+                    } else if ( userBet > 0 ) {
+                        if(tie.length > 1) {
+                            let eachPlayer = Math.round(pool.length * userBet /tie.length);
+                            message.channel.send(tie + ' each earned ' + eachPlayer + ' points!');
+                            for (var j = 0; j < tie.length; j++) {
+                                this.addByUser(tie[j], message, eachPlayer);
+                            }
+                        } else {
+                            message.channel.send(highest.user + ' won ' + pool.length * userBet + ' points!');
+                            this.addByUser(highest.user, message, pool.length * userBet);
                         }
                     }
 
@@ -246,11 +324,16 @@ class TriviaCommand extends commando.Command {
                     message.channel.send("You guys really suck. Nobody won.");
                 }
 
-                // RESET CATEGORY
+                // RESET VALUES
                 category = '';
                 amount = 10;
                 apiLink = 'https://opentdb.com/api.php?';
                 stop = false;
+                pool = [];
+                restricted = [];
+            } else if(i < arr.length) {
+                message.channel.send('---------------------------');
+                this.cbLoop(i, arr, message);
             }
         });
     }
@@ -263,7 +346,8 @@ class TriviaCommand extends commando.Command {
         return string;
     }
 
-    async run(message, { text, num }) {
+    async run(message, { text, num, bet }) {
+        userBet = bet;
         let t = text.toLowerCase();
         let c;
         switch(t) {
