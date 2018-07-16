@@ -181,7 +181,7 @@ class TriviaCommand extends commando.Command {
                 
                 // Compares scores, if any questions were even answered correctly
                 if(points.winners) {
-                
+                    let roundWinners = [];
                     Object.keys(points).forEach(key => {
                         if(key !== 'winners') {
                             if(highest.points < points[key]) {
@@ -189,16 +189,29 @@ class TriviaCommand extends commando.Command {
                                     user: key,
                                     points: points[key]
                                 }
+                                tie = highest.user;
+                                if(tie.length > 1) {
+                                    tie = [highest.user];
+                                }
                             } else if (highest.points == points[key]) {
                                 tie = [...tie, key];
                             }
                         }
+                        roundWinners = [...roundWinners, key];
                     });
 
-                    if(tie.length > 0) {
+                    if(tie.length > 1) {
                         message.channel.send(tie + ' tied with ' + highest.points/100 + ' correct answers!');
                     } else {
                         message.channel.send(highest.user + ' won with ' + highest.points/100 + ' correct answers!');
+                    }
+
+                    if(roundWinners.length > 1) {
+                        if(tie.length > 1) {
+                            message.channel.send(tie + ' each earned ' + Math.round(arr.length * 150 / tie.length) + ' points!');
+                        } else {
+                            message.channel.send(highest.user + ' won ' + arr.length * 150 + ' points!');
+                        }
                     }
 
                     points = {};
