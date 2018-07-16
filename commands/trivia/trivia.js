@@ -106,6 +106,10 @@ class TriviaCommand extends commando.Command {
 
         // Triggered when message is seen on channel
         collector.on('collect', m => {
+            if(m.toLowerCase() == "stop") {
+                i = arr.length;
+                collector.stop();
+            }
             if(guessed.indexOf(m.author.username) === -1) {
                 if(m == curQuest.correct + 1) {
                     if(!winner.win) {

@@ -19,6 +19,18 @@ class NewUserCommand extends commando.Command {
 
     async run (message) {
 
+        Points.findOne({ userId: message.author.id })
+            .then((res) => {
+                if(res) {
+                    message.reply(" you have " + res.points + " points!");
+                } else {
+                    message.reply(" please type '.new' to create a new user");
+                }
+            })
+            .catch(err => {
+                
+            });
+
         let newUser = new Points ({
             _id: mongoose.Types.ObjectId(),
             user: message.author.username,
