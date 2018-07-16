@@ -11,7 +11,7 @@ mongoose.connect(
 );
 
 // App variables
-const category = '';
+let category = '';
 const amount = 10;
 let apiLink = 'https://opentdb.com/api.php?';
 
@@ -190,6 +190,9 @@ class TriviaCommand extends commando.Command {
                 }else {
                     message.channel.send("You guys really suck. Nobody won.");
                 }
+
+                // RESET CATEGORY
+                category = '';
             }
         });
     }
