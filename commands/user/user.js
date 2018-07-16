@@ -24,27 +24,27 @@ class NewUserCommand extends commando.Command {
                 if(res) {
                     message.reply(" you have " + res.points + " points!");
                 } else {
-                    message.reply(" please type '.new' to create a new user");
+                    let newUser = new Points ({
+                        _id: mongoose.Types.ObjectId(),
+                        user: message.author.username,
+                        userId: message.author.id,
+                        points: 0
+                    });
+            
+                    newUser.save()
+                        .then(res => {
+                            if(res) {
+                                message.reply(' your profile has been created!');
+                            }
+                        })
+                        .catch(err => console.log(err));
                 }
             })
             .catch(err => {
-                
+
             });
 
-        let newUser = new Points ({
-            _id: mongoose.Types.ObjectId(),
-            user: message.author.username,
-            userId: message.author.id,
-            points: 0
-        });
-
-        newUser.save()
-            .then(res => {
-                if(res) {
-                    message.reply(' your profile has been created!');
-                }
-            })
-            .catch(err => console.log(err));
+        
     }
 }
 
