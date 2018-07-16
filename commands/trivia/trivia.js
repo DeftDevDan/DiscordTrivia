@@ -70,42 +70,38 @@ class TriviaCommand extends commando.Command {
     }
 
     addPoints(id, user, message, pts) {
-        try {
-            Points.findOne({ userId: id })
-                .then((res) => {
-                    if(res) {
-                        res.points += pts;
-                        message.channel.send(user + ", you have " + res.points + " points now!");
-                        res.save(err => {
-                            if(err) {
-                                console.log(err)
-                            }
-                        });
-                    } else {
-                        message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
-                    }
-                })
-                .catch(err => console.log(err));
-        }
-        catch (err) {
-            if(err) {
-                Points.findOne({ user: user })
-                .then((res) => {
-                    if(res) {
-                        res.points += pts;
-                        message.channel.send(user + ", you have " + res.points + " points now!");
-                        res.save(err => {
-                            if(err) {
-                                console.log(err)
-                            }
-                        });
-                    } else {
-                        message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
-                    }
-                })
-            }
-            
-        }
+        Points.findOne({ userId: id })
+            .then((res) => {
+                if(res) {
+                    res.points += pts;
+                    message.channel.send(user + ", you have " + res.points + " points now!");
+                    res.save(err => {
+                        if(err) {
+                            console.log(err)
+                        }
+                    });
+                } else {
+                    message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
+                }
+            })
+            .catch(err => {
+                if(err) {
+                    Points.findOne({ user: user })
+                    .then((res) => {
+                        if(res) {
+                            res.points += pts;
+                            message.channel.send(user + ", you have " + res.points + " points now!");
+                            res.save(err => {
+                                if(err) {
+                                    console.log(err)
+                                }
+                            });
+                        } else {
+                            message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
+                        }
+                    })
+                }
+            });
     }
 
     // Callback loop is used to separate each question.
