@@ -70,21 +70,39 @@ class TriviaCommand extends commando.Command {
     }
 
     addPoints(id, user, message, pts) {
-        Points.findOne({ userId: id })
-            .then((res) => {
-                if(res) {
-                    res.points += pts;
-                    message.channel.send(user + ", you have " + res.points + " points now!");
-                    res.save(err => {
-                        if(err) {
-                            console.log(err)
-                        }
-                    });
-                } else {
-                    message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
-                }
-            })
-            .catch(err => console.log(err));
+        try {
+            Points.findOne({ userId: id })
+                .then((res) => {
+                    if(res) {
+                        res.points += pts;
+                        message.channel.send(user + ", you have " + res.points + " points now!");
+                        res.save(err => {
+                            if(err) {
+                                console.log(err)
+                            }
+                        });
+                    } else {
+                        message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
+                    }
+                })
+                .catch(err => console.log(err));
+        }
+        catch (err) {
+            Points.findOne({ user: user })
+                .then((res) => {
+                    if(res) {
+                        res.points += pts;
+                        message.channel.send(user + ", you have " + res.points + " points now!");
+                        res.save(err => {
+                            if(err) {
+                                console.log(err)
+                            }
+                        });
+                    } else {
+                        message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
+                    }
+                })
+        }
     }
 
     // Callback loop is used to separate each question.
@@ -208,9 +226,13 @@ class TriviaCommand extends commando.Command {
 
                     if(roundWinners.length > 1) {
                         if(tie.length > 1) {
-                            message.channel.send(tie + ' each earned ' + Math.round(arr.length * 150 / tie.length) + ' points!');
+                            let eachPlayer = Math.round(arr.length * 25 /tie.length);
+                            for (var i = 0; i < tie.length; i++) {
+                                this.addPoints(tie[i], tie[i], tie + ' each earned ' + eachPlayer + ' points!', eachPlayer);
+                            }
                         } else {
-                            message.channel.send(highest.user + ' won ' + arr.length * 150 + ' points!');
+                            message.channel.send(highest.user + ' won ' + arr.length * 25 + ' points!');
+                            this.addPoints(highest.user, winner.user, message, arr.length * 25);
                         }
                     }
 
