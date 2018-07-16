@@ -192,9 +192,9 @@ class TriviaCommand extends commando.Command {
                 }
 
                 // RESET CATEGORY
-                let category = '';
-                let amount = 10;
-                let apiLink = 'https://opentdb.com/api.php?';
+                category = '';
+                amount = 10;
+                apiLink = 'https://opentdb.com/api.php?';
             }
         });
     }
