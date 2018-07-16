@@ -14,6 +14,7 @@ mongoose.connect(
 let category = '';
 let amount = 10;
 let apiLink = 'https://opentdb.com/api.php?';
+let stop = false;
 
 let points = {
 
@@ -107,7 +108,8 @@ class TriviaCommand extends commando.Command {
         // Triggered when message is seen on channel
         collector.on('collect', m => {
             if(m == "stop") {
-                i = arr.length;
+                i = arr.length + 100;
+                stop = true;
                 collector.stop();
             }
             if(guessed.indexOf(m.author.username) === -1) {
@@ -157,14 +159,16 @@ class TriviaCommand extends commando.Command {
                     id: '',
                     win: false
                 }
-            } else {
+            } else if(stop) {
+                message.channel.send("Game was stopped");
+            }else {
                 message.channel.send('Looks like nobody got it correct! You guys suck. The correct answer was: ' + (curQuest.correct + 1));
             }
             i++;
 
 
             // Checks if game should continue, or if it should end
-            if(i !== arr.length) {
+            if(i < arr.length) {
                 message.channel.send('---------------------------');
                 this.cbLoop(i, arr, message);
             } else {
@@ -191,6 +195,8 @@ class TriviaCommand extends commando.Command {
 
                     points = {};
 
+                } else if(stop) {
+                    
                 }else {
                     message.channel.send("You guys really suck. Nobody won.");
                 }
@@ -199,6 +205,7 @@ class TriviaCommand extends commando.Command {
                 category = '';
                 amount = 10;
                 apiLink = 'https://opentdb.com/api.php?';
+                stop = false;
             }
         });
     }
