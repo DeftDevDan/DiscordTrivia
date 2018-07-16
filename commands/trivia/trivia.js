@@ -195,7 +195,7 @@ class TriviaCommand extends commando.Command {
                         }
                     });
 
-                    if(tie) {
+                    if(tie.length > 0) {
                         message.channel.send(tie + ' tied with ' + highest.points/100 + ' correct answers!');
                     } else {
                         message.channel.send(highest.user + ' won with ' + highest.points/100 + ' correct answers!');
