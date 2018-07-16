@@ -7,7 +7,7 @@ mongoose.connect(
     process.env.MONGODB_URI
 );
 
-class NewUserCommand extends commando.Command {
+class LeaderboardCommand extends commando.Command {
     constructor(client) {
         super(client, {
             name: 'leader',
@@ -28,14 +28,14 @@ class NewUserCommand extends commando.Command {
 
                 res.forEach( (user) => {
                     let userObj = {
-                        user: user.username,
+                        username: user.user,
                         points: user.points
                     }
                     leaderboard.push(userObj)
                 })
 
                 for(var i = 1 ; i <= leaderboard.length ; i++ ) {
-                    msg += `${i}. ${leaderboard[i-1]}\n`;
+                    msg += `${i}. ${leaderboard[i-1].username}: ${leaderboard[i-1].points}\n`;
                 }
 
                 message.channel.send(msg);
@@ -44,4 +44,4 @@ class NewUserCommand extends commando.Command {
     }
 }
 
-module.exports = NewUserCommand;
+module.exports = LeaderboardCommand;

@@ -21,4 +21,4 @@ bot.registry.registerCommandsIn(__dirname + "/commands");
 
 bot.login(process.env.TOKEN);
 
-console.log('logged on');
+console.log('Server has started and bot has logged on!');
