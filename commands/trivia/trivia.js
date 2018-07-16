@@ -191,7 +191,6 @@ class TriviaCommand extends commando.Command {
                 message.channel.send('---------------------------');
                 this.cbLoop(i, arr, message);
             } else {
-                console.log(i, arr.length);
                 let highest = {
                     user: '',
                     points: 0
@@ -227,7 +226,6 @@ class TriviaCommand extends commando.Command {
                     }
 
                     if(roundWinners.length > 1) {
-                        console.log(roundWinners);
                         if(tie.length > 1) {
                             let eachPlayer = Math.round(arr.length * 25 /tie.length);
                             message.channel.send(tie + ' each earned ' + eachPlayer + ' points!');
