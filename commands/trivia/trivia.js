@@ -106,7 +106,7 @@ class TriviaCommand extends commando.Command {
 
         // Triggered when message is seen on channel
         collector.on('collect', m => {
-            if(m.toLowerCase() == "stop") {
+            if(m == "stop") {
                 i = arr.length;
                 collector.stop();
             }
