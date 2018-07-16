@@ -88,7 +88,8 @@ class TriviaCommand extends commando.Command {
                 .catch(err => console.log(err));
         }
         catch (err) {
-            Points.findOne({ user: user })
+            if(err) {
+                Points.findOne({ user: user })
                 .then((res) => {
                     if(res) {
                         res.points += pts;
@@ -102,6 +103,8 @@ class TriviaCommand extends commando.Command {
                         message.channel.send(user + " please create new profile by typing '.new' to accumulate points.")
                     }
                 })
+            }
+            
         }
     }
 
