@@ -32,14 +32,13 @@ let winner = {
 
 // Trivia Class
 
-class TriviaCommand extends commando.Command {
+class slowTrivia extends commando.Command {
     constructor(client) {
         super(client, {
-            name: 't',
-            aliases: ['trivia', 'triv'],
+            name: 'slow',
             group: 'trivia',
-            memberName: 't',
-            description: 'Starts the trivia game',
+            memberName: 'slow',
+            description: 'Starts the slower trivia game. All players who guess correctly will be rewarded',
             args: [
                 {
                     key: 'text',
@@ -375,8 +374,7 @@ class TriviaCommand extends commando.Command {
         if(c) {
             apiLink += 'amount=' + num + '&category=' + c + '&difficulty=medium';
         } else {
-            // apiLink += 'amount=' + num + '&difficulty=medium';
-            apiLink += 'amount=' + num;
+            apiLink += 'amount=' + num + '&difficulty=medium';
         }
 
         let questions = [];
@@ -430,4 +428,4 @@ class TriviaCommand extends commando.Command {
     }
 }
 
-module.exports = TriviaCommand;
+module.exports = slowTrivia;
