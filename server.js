@@ -42,6 +42,19 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     } else if(newUserChannel === undefined){
   
       // User leaves a voice channel
+      if(oldMember.user.username === 'KptKid') {
+        oldUserChannel.join().then(connection => {
+          const dispatcher = connection.playFile('./sounds/left.mp3');
+        })
+        .catch(console.error);
+      }
+
+      if(oldMember.user.username === 'Tall Grass') {
+        oldUserChannel.join().then(connection => {
+          const dispatcher = connection.playFile('./sounds/Gabe.mp3');
+        })
+        .catch(console.error);
+      }
   
     }
   })
