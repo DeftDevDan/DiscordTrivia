@@ -17,12 +17,17 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "bufferutil": "^4.0.0",
     "discord.js": "^11.3.2",
     "discord.js-commando": "^0.10.0",
     "express": "^4.16.3",
+    "ffmpeg-binaries": "^4.0.0",
+    "g": "^2.0.1",
     "mongodb": "^3.1.1",
     "mongoose": "^5.2.3",
     "node-env-file": "^0.1.8",
+    "node-opus": "^0.3.0",
+    "opusscript": "0.0.6",
     "uws": "^10.148.1"
   }
 }
