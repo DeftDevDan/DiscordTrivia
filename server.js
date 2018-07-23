@@ -47,21 +47,21 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
         oldUserChannel.join().then(connection => {
           const dispatcher = connection.playFile('./sounds/left.mp3');
         })
-        .catch(console.error);
+        .catch(err => console.log(err));
       }
 
       if(oldMember.user.username === 'Tall Grass') {
         oldUserChannel.join().then(connection => {
           const dispatcher = connection.playFile('./sounds/Gabe.mp3');
         })
-        .catch(console.error);
+        .catch(err => console.log(err));
       }
 
       if(oldMember.user.username === 'colej12340') {
         oldUserChannel.join().then(connection => {
           const dispatcher = connection.playFile('./sounds/Cole.mp3');
         })
-        .catch(console.error);
+        .catch(err => console.log(err));
       }
   
     }
