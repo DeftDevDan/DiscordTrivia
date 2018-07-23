@@ -15,12 +15,12 @@ const PORT = process.env.PORT;
 
 bot.registry.registerGroup('trivia', 'Trivia');
 bot.registry.registerGroup('user', 'User');
+bot.registry.registerGroup('channel', 'Channel');
 
-if (process.env.TESTING) {
+if (process.env.TESTING == true) {
   bot.registry.registerGroup('test', 'Test');
 }
 
-bot.registry.registerGroup('channel', 'Channel');
 bot.registry.registerDefaults();
 bot.registry.registerCommandsIn(__dirname + "/commands");
 
@@ -36,6 +36,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 
       newUserChannel.join().then(connection => {
         const dispatcher = connection.playFile('./sounds/'+oldMember.user.username+'.mp3');
+        console.log(oldMember.user.username, " has joined");
       })
       .catch(console.error);
   
@@ -52,6 +53,13 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
       if(oldMember.user.username === 'Tall Grass') {
         oldUserChannel.join().then(connection => {
           const dispatcher = connection.playFile('./sounds/Gabe.mp3');
+        })
+        .catch(console.error);
+      }
+
+      if(oldMember.user.username === 'colej12340') {
+        oldUserChannel.join().then(connection => {
+          const dispatcher = connection.playFile('./sounds/Cole.mp3');
         })
         .catch(console.error);
       }
